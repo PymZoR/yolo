@@ -14,8 +14,8 @@ void error(const char *msg)
 
 int startsWith(const char *a, const char *b)
 {
-   if(strncmp(a, b, strlen(b)) == 0) return 1;
-   return 0;
+	if(strncmp(a, b, strlen(b)) == 0) return 1;
+	return 0;
 }
 
 int main(int argc, char *argv[])
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 	int sockfd, newsockfd, portno;
 	socklen_t clilen;
 	char buffer[256];
-   char exitStr[] = "exit";
+	char exitStr[] = "exit";
 	struct sockaddr_in serv_addr, cli_addr;
 	int n;
 	if (argc < 2) {
@@ -43,64 +43,62 @@ int main(int argc, char *argv[])
 		error("ERROR on binding");
 	listen(sockfd,5);
 	clilen = sizeof(cli_addr);
-   printf("Server started on port [%d], waiting for client...\n", portno);
+	printf("Server started on port [%d], waiting for client...\n", portno);
 	newsockfd = accept(sockfd,
 	                   (struct sockaddr *) &cli_addr,
 	                   &clilen);
 	if (newsockfd < 0)
 		error("ERROR on accept");
-   printf("New client connected, waiting for commands...\n");
+	printf("New client connected, waiting for commands...\n");
 	do {
 		bzero(buffer,256);
 		n = read(newsockfd,buffer,255);
 		if (n < 0) error("ERROR reading from socket");
-      buffer[strlen(buffer) - 1] = '\0';
+		//buffer[strlen(buffer) - 1] = '\0';
 
-      printf("\n---------------------\n> %s\n", buffer);
+		if(strlen(buffer) > 0) {
+			printf("\n---------------------\n> %s\n", buffer);
 
-      if(startsWith(buffer, "TimeSig")) {
-         char numeratorStr[255], denominatorStr[255], tempoStr[255];
-         int numerator, denominator, tempo;
-         if(sscanf("TimeSig %s/%s, Tempo %s, Start", numeratorStr, denominatorStr, tempoStr) == 1) {
-            numerator = atoi(numeratorStr);
-            denominator = atoi(denominatorStr);
-            tempo = atoi(tempoStr);
-            printf("Received command TimeSig with fraction [%d/%d] with tempo [%d]\n", numerator, denominator, tempo);
-            //TODO: do something with numerator, denominator and tempo
+			if(startsWith(buffer, "TimeSig")) {
+				int numerator, denominator, tempo;
+				if(sscanf(buffer, "TimeSig %d/%d, Tempo %d, Start", &numerator, &denominator, &tempo) > 0) {
+					printf("Received command TimeSig with fraction [%d/%d] with tempo [%d]\n", numerator, denominator, tempo);
+					//TODO: do something with numerator, denominator and tempo
 
 
-            //Now, notify client that everything works fine
-            n = write(newsockfd,"Received command TimeSig",24);
-      		if (n < 0) error("ERROR writing to socket");
-         }
-         else {
-            n = write(newsockfd,"Received malformed command TimeSig",34);
-      		if (n < 0) error("ERROR writing to socket");
-            error("Incorrect command from client");
-         }
-      }
-      else if (startsWith(buffer, "Stop")) {
-         printf("Received command Stop\n");
-         //TODO: stop
+					//Now, notify client that everything works fine
+					n = write(newsockfd,"Received command TimeSig",24);
+					if (n < 0) error("ERROR writing to socket");
+				}
+				else {
+					n = write(newsockfd,"Received malformed command TimeSig",34);
+					if (n < 0) error("ERROR writing to socket");
+					error("Incorrect command from client");
+				}
+			}
+			else if (startsWith(buffer, "Stop")) {
+				printf("Received command Stop\n");
+				//TODO: stop
 
-         n = write(newsockfd,"Received command Stop",21);
-         if (n < 0) error("ERROR writing to socket");
-      }
-      else if (startsWith(buffer, "Quit")) {
-         printf("Received command Quit\n");
-         //TODO: quit
+				n = write(newsockfd,"Received command Stop",21);
+				if (n < 0) error("ERROR writing to socket");
+			}
+			else if (startsWith(buffer, "Quit")) {
+				printf("Received command Quit\n");
+				//TODO: quit
 
-         n = write(newsockfd,"Received command Quit",21);
-         if (n < 0) error("ERROR writing to socket");
-      }
-      else {
-         n = write(newsockfd,"Received unknow command",23);
-         printf("Sending unknow command. Status: %d\n", n);
+				n = write(newsockfd,"Received command Quit",21);
+				if (n < 0) error("ERROR writing to socket");
+			}
+			else {
+				n = write(newsockfd,"Received unknow command",23);
+				printf("Sending unknow command. Status: %d\n", n);
 
-         if (n < 0) error("ERROR writing to socket");
-         //error("Received unknow command");
-      }
-	} while(strcmp(buffer, exitStr));
+				if (n < 0) error("ERROR writing to socket");
+				//error("Received unknow command");
+			}
+		}
+	} while(strlen(buffer) > 0);
 	close(newsockfd);
 	close(sockfd);
 	return 0;
