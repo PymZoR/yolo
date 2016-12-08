@@ -1,5 +1,5 @@
 CFLAGS =
-SRC    = metroClient.c
+SRC    = metroClient.c key_input_fu.c
 LIB    = -lpthread
 
 all: nc
