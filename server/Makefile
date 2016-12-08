@@ -1,6 +1,6 @@
-CFLAGS =
-SRC    = metroServer.c
-LIB    = -lpthread
+CFLAGS = -DBB=1
+SRC    = metroServer.c hrtimer.c gpio_led_fu.c
+LIB    = -lpthread -lrt
 
 all: nc
 

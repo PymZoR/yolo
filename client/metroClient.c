@@ -88,7 +88,7 @@ void sendSocket(Message *message) {
         }
 
         case 2: {
-            printf("SEND >> TimeSig %i/%i, Tempo %i, Start", message->arg1, message->arg2, message->arg3);
+            // printf("SEND >> TimeSig %i/%i, Tempo %i, Start", message->arg1, message->arg2, message->arg3);
             sprintf(buffOut, "TimeSig %i/%i, Tempo %i, Start", message->arg1, message->arg2, message->arg3);
             break;
         }
@@ -205,7 +205,9 @@ void* displayOutputThread(void *arg) {
         if (n <= 0) {
              error("ERROR reading from socket");
         }
-        printf("\nRECV << %s\n", buffIn);
+        // printf("\nRECV << %s\n", buffIn);
+        printf(buffIn);
+        fflush(stdout);
     }
 
     pthread_exit(NULL);
