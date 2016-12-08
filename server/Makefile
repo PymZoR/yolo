@@ -1,6 +1,6 @@
 CFLAGS =
 SRC    = metroServer.c
-LIB    = -lpthread -lrt
+LIB    = -lpthread
 
 all: nc
 
